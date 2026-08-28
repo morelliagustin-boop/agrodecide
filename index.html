@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>AgroDecide · GDL</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--g1:#1B4332;--pale:#74C69D;--bg:#EEF2E9;--sf:#fff;--br:#D2D8CB;--tx:#1A1F16;--mu:#6B7267;--r:13px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding-bottom:48px}
+.wrap{max-width:440px;margin:0 auto}
+
+.hdr{background:var(--g1);padding:36px 22px 28px;border-radius:0 0 22px 22px}
+.hdr-eye{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pale);margin-bottom:12px}
+.hdr-h1{font-size:40px;font-weight:800;line-height:.92;letter-spacing:-.03em;color:#fff;margin-bottom:10px}
+.hdr-h1 em{color:var(--pale);font-style:normal}
+.hdr-sub{font-size:14px;color:#A8D5BC;line-height:1.5}
+
+.card{background:var(--sf);margin:10px 14px 0;border-radius:var(--r);padding:16px;border:.5px solid var(--br);box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.c-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:11px}
+.opts{display:flex;gap:7px;flex-wrap:wrap}
+.opt{flex:1;min-width:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px;border-radius:9px;min-height:52px;border:1.5px solid var(--br);background:var(--sf);color:var(--tx);font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;line-height:1.2}
+.opt em{display:block;font-style:normal;font-size:10px;font-weight:400;color:var(--mu);margin-top:3px;line-height:1.3}
+.opt.on{background:var(--g1);border-color:var(--g1);color:#fff}
+.opt.on em{color:var(--pale)}
+
+.btn-c{display:block;width:100%;padding:16px;border-radius:var(--r);border:none;font-size:15px;font-weight:700;letter-spacing:.02em;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-c.ok{background:var(--g1);color:#fff}
+.btn-c.no{background:var(--br);color:#9AA096;cursor:not-allowed}
+
+.rc{border-radius:var(--r);overflow:hidden;border:.5px solid var(--br);background:var(--sf);box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.rc-top{padding:20px 20px 18px;border-bottom:.5px solid var(--br)}
+.chip{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-bottom:12px}
+.rc-name{font-size:28px;font-weight:800;letter-spacing:-.025em;line-height:1;margin-bottom:3px}
+.rc-price{font-size:18px;font-weight:700;margin-bottom:16px}
+.bar-bg{height:7px;background:#ECEAE4;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px}
+.bar-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--mu);margin-top:5px}
+.rc-body{padding:16px 20px 18px}
+.rr{margin-bottom:14px}
+.rr-l{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:5px}
+.rr-v{font-size:14px;line-height:1.55;color:var(--tx)}
+.rr-s{font-size:13px;line-height:1.55;color:var(--mu)}
+.div-sep{padding-top:14px;border-top:.5px solid var(--br);margin-top:4px}
+
+.warn{background:#FFFBEA;border:.5px solid #E8D040;border-radius:var(--r);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.warn-ico{width:26px;height:26px;border-radius:50%;background:#FBBF24;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#78350F;flex-shrink:0;margin-top:1px}
+.warn-t{font-size:13px;font-weight:700;color:#78350F;margin-bottom:3px}
+.warn-b{font-size:13px;color:#92400E;line-height:1.5}
+
+.ref-row{display:flex;align-items:center;padding:11px 14px;border-bottom:.5px solid var(--br);gap:10px;transition:background .15s}
+.ref-row:last-child{border-bottom:none}
+.ref-row.hl{background:#F0F7F3}
+.ref-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+.btn-sh{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:12px;border-radius:var(--r);border:1.5px solid var(--br);background:var(--sf);color:var(--mu);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;margin-top:10px;font-family:inherit}
+.btn-sh:active{background:var(--bg)}
+
+@keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.pop{animation:none!important}}
+.pop{animation:pop .22s ease}
+.foot{text-align:center;padding:24px 16px 0;font-size:11px;color:var(--mu);letter-spacing:.04em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hdr">
+  <div class="hdr-eye">Decisiones de campo · GDL</div>
+  <div class="hdr-h1">Agro<em>Decide</em></div>
+  <div class="hdr-sub">Seleccioná las variables del lote y del material para encontrar el producto ideal.</div>
+</div>
+
+<div class="card">
+  <div class="c-lbl">1 · Cultivo</div>
+  <div class="opts" id="g-cultivo">
+    <button class="opt" data-v="Trigo" onclick="pick('cultivo',this)">Trigo</button>
+    <button class="opt" data-v="Maíz" onclick="pick('cultivo',this)">Maíz</button>
+    <button class="opt" data-v="Soja" onclick="pick('cultivo',this)">Soja</button>
+    <button class="opt" data-v="Girasol" onclick="pick('cultivo',this)">Girasol</button>
+  </div>
+</div>
+
+<div class="card" id="c-problema" style="display:none">
+  <div class="c-lbl">2 · Problema</div>
+  <div class="opts" id="g-problema">
+    <button class="opt" data-v="Enfermedades" onclick="pick('problema',this)">Enfermedades</button>
+    <button class="opt" data-v="Plagas" onclick="pick('problema',this)">Plagas</button>
+    <button class="opt" data-v="Malezas" onclick="pick('problema',this)">Malezas</button>
+  </div>
+</div>
+
+<div class="card" id="c-susc" style="display:none">
+  <div class="c-lbl">3 · Susceptibilidad del material</div>
+  <div class="opts" id="g-susc">
+    <button class="opt" data-v="Alta" onclick="pick('susc',this)">Alta</button>
+    <button class="opt" data-v="Media" onclick="pick('susc',this)">Media</button>
+    <button class="opt" data-v="Baja" onclick="pick('susc',this)">Baja<em>Tolerante</em></button>
+  </div>
+</div>
+
+<div class="card" id="c-tam" style="display:none">
+  <div class="c-lbl">4 · Estadio al momento de aplicar</div>
+  <div class="opts" id="g-tam" style="flex-direction:column">
+    <button class="opt" data-v="Macollaje" onclick="pick('tam',this)" style="min-height:44px">Macollaje</button>
+    <button class="opt" data-v="Elongación" onclick="pick('tam',this)" style="min-height:44px">Elongación</button>
+    <button class="opt" data-v="Espiga embuchada" onclick="pick('tam',this)" style="min-height:44px">Espiga embuchada</button>
+    <button class="opt" data-v="Hoja bandera" onclick="pick('tam',this)" style="min-height:44px">Hoja bandera</button>
+    <button class="opt" data-v="Grano lechoso" onclick="pick('tam',this)" style="min-height:44px">Grano lechoso</button>
+    <button class="opt" data-v="Grano pastoso" onclick="pick('tam',this)" style="min-height:44px">Grano pastoso</button>
+  </div>
+</div>
+
+<div class="card" id="c-enfinfo" style="display:none;border-left:3px solid #2D6A4F">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+    <div class="c-lbl" style="margin-bottom:0">Enfermedades en juego</div>
+    <span id="enf-badge" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:#2D6A4F22;color:#2D6A4F"></span>
+  </div>
+  <p id="enf-texto" style="font-size:13px;color:var(--mu);line-height:1.55;margin:0"></p>
+</div>
+  <div class="c-lbl">5 · Acceso al lote</div>
+  <div class="opts" id="g-acc" style="flex-direction:column">
+    <button class="opt" data-v="Fácil" onclick="pick('acc',this)" style="min-height:44px">Fácil<em>Suelo firme, entrás cuando querés</em></button>
+    <button class="opt" data-v="Normal" onclick="pick('acc',this)" style="min-height:44px">Normal<em>Podés planificar el timing</em></button>
+    <button class="opt" data-v="Difícil" onclick="pick('acc',this)" style="min-height:44px">Difícil<em>Llueve mucho, no siempre podés entrar</em></button>
+  </div>
+</div>
+
+<div class="card" id="c-mancha" style="display:none">
+  <div class="c-lbl">6 · Manchas foliares (Septoria / Mancha amarilla)</div>
+  <div class="opts" id="g-mancha">
+    <button class="opt" data-v="Sin presencia" onclick="pick('mancha',this)">Sin presencia</button>
+    <button class="opt" data-v="Poca" onclick="pick('mancha',this)">Poca</button>
+    <button class="opt" data-v="Media" onclick="pick('mancha',this)">Media</button>
+    <button class="opt" data-v="Mucha" onclick="pick('mancha',this)">Mucha</button>
+  </div>
+</div>
+
+<div class="card" id="c-roya" style="display:none">
+  <div class="c-lbl" id="lbl-roya">7 · Roya presente (podés marcar más de una)</div>
+  <div class="opts" id="g-roya" style="flex-direction:column">
+    <button class="opt" data-v="Sin presencia" onclick="pickRoya(this)" style="min-height:44px">Sin presencia</button>
+    <button class="opt" data-v="Amarilla"      onclick="pickRoya(this)" style="min-height:44px">Roya amarilla</button>
+    <button class="opt" data-v="Anaranjada"    onclick="pickRoya(this)" style="min-height:44px">Roya anaranjada</button>
+    <button class="opt" data-v="Tallo"         onclick="pickRoya(this)" style="min-height:44px">Roya de tallo</button>
+  </div>
+</div>
+
+<div class="card" id="c-cant-roya" style="display:none">
+  <div class="c-lbl">8 · Intensidad de la roya</div>
+  <div class="opts" id="g-cant-roya">
+    <button class="opt" data-v="Poca" onclick="pick('cantRoya',this)">Poca</button>
+    <button class="opt" data-v="Media" onclick="pick('cantRoya',this)">Media</button>
+    <button class="opt" data-v="Mucha" onclick="pick('cantRoya',this)">Mucha</button>
+  </div>
+</div>
+
+<div class="card" id="c-soon" style="display:none">
+  <div class="c-lbl">Situación</div>
+  <p style="font-size:13px;color:var(--mu);line-height:1.6">Esta combinación estará disponible próximamente. Consultá directamente con el asesor.</p>
+</div>
+
+<div class="card" id="c-maiz-timing" style="display:none">
+  <div class="c-lbl">3 · ¿Cuándo llegás al lote?</div>
+  <div class="opts" id="g-maiz-timing" style="flex-direction:column">
+    <button class="opt" data-v="antes" onclick="pick('maizTiming',this)" style="min-height:56px">Fierce — antes de sembrar<em>10 días de carencia antes de la siembra</em></button>
+    <button class="opt" data-v="pre"   onclick="pick('maizTiming',this)" style="min-height:56px">Sembré, el maíz aún no nació<em>Ventana pre-emergente</em></button>
+    <button class="opt" data-v="nacio" onclick="pick('maizTiming',this)" style="min-height:56px">Sembré y ya nació<em>Hasta V1 — Adengo solo</em></button>
+  </div>
+</div>
+
+<div class="card" id="c-maiz-cond" style="display:none">
+  <div class="c-lbl">4 · Condición del lote / Producto</div>
+  <div class="opts" id="g-maiz-cond" style="flex-direction:column">
+    <button class="opt" data-v="capinYuyo"  onclick="pick('maizCond',this)" style="min-height:52px">Acuron + S-meto<em>Capín o yuyo colorado — el más eficaz</em></button>
+    <button class="opt" data-v="lluvioso"   onclick="pick('maizCond',this)" style="min-height:52px">Terbu + S-meto<em>Año muy lluvioso — más persistente que Atrazina</em></button>
+    <button class="opt" data-v="normal"     onclick="pick('maizCond',this)" style="min-height:52px">Atrazina + S-meto<em>Año normal — el más económico</em></button>
+    <button class="opt" data-v="adengoAtr"  onclick="pick('maizCond',this)" style="min-height:52px">Adengo + Atrazina<em>Espectro ampliado, rotación de mecanismo</em></button>
+  </div>
+</div>
+
+<div style="padding:10px 14px" id="c-btn" style="display:none">
+  <button id="btn-c" class="btn-c no" onclick="consultar()">Completá todas las variables</button>
+</div>
+
+<div id="result"></div>
+
+<div id="c-warn" style="display:none;margin:10px 14px 0">
+  <div class="warn">
+    <div class="warn-ico">!</div>
+    <div>
+      <div class="warn-t">Espigazón con lluvia (Z60–Z65)</div>
+      <div class="warn-b">Escalá siempre a <strong>Miravis Triple</strong> para cubrir Giberela, sea cual sea el escenario base. En Entre Ríos ese riesgo no se puede ignorar.</div>
+    </div>
+  </div>
+</div>
+
+<div id="c-ref" style="display:none;margin:10px 14px 0">
+  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin-bottom:8px">Todos los productos del grupo</div>
+  <div style="background:var(--sf);border-radius:var(--r);border:.5px solid var(--br);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)" id="ref-tb"></div>
+</div>
+
+<div class="foot">GDL · Morelli y Cía — Entre Ríos</div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  PRODUCTOS — editá acá para actualizar precios
+//  Para agregar uno nuevo: copiá un bloque y modificalo
+// ══════════════════════════════════════════════════════
+const PROD = [
+  { id:'azoxy',   nombre:'Azoxy Cipro',    activo:'Azoxistrobina + Ciproconazol',                         costo:5.4,  dosis:'450–500 cc/ha', res:'18–21 d', mec:'Strobilurina + Triazol · 2 MoA', sdhi:false, fus:'Débil',     col:'#2D6A4F', tier:'Económico' },
+  { id:'carbendazim', nombre:'Carbendazim',  activo:'Carbendazim 50%',                                      costo:3.25, dosis:'500 cc/ha',      res:'14–18 d', mec:'Benzimidazol · 1 MoA',            sdhi:false, fus:'Moderado',  col:'#3B7A57', tier:'Económico' },
+  { id:'tebuconazole',nombre:'Tebuconazole', activo:'Tebuconazol 25%',                                       costo:7.6,  dosis:'800 cc/ha',       res:'18–22 d', mec:'Triazol · 1 MoA',                 sdhi:false, fus:'Bueno',     col:'#2D6A4F', tier:'Económico' },
+  { id:'cripton', nombre:'Cripton / Eilat', activo:'Kresoxim-metil + Epoxiconazol',                        costo:17.15,dosis:'700 cc/ha',      res:'20–22 d', mec:'Strobilurina + Triazol · 2 MoA', sdhi:false, fus:'Débil',     col:'#3A8060', tier:'Económico' },
+  { id:'elatus',  nombre:'Elatus Ace',      activo:'Benzovindiflupyr + Propiconazol',                      costo:18,   dosis:'500 cc/ha',      res:'26–30 d', mec:'SDHI + Triazol · 2 MoA',          sdhi:true,  fus:'Bueno',     col:'#C45A10', tier:'SDHI' },
+  { id:'opera',   nombre:'Opera',           activo:'Piraclostrobina + Epoxiconazol',                       costo:19,   dosis:'1000 cc/ha',     res:'20–22 d', mec:'Strobilurina + Triazol · 2 MoA', sdhi:false, fus:'Bueno',     col:'#B08A05', tier:'Intermedio' },
+  { id:'miravis', nombre:'Miravis Triple',  activo:'Pydiflumetofen + Propiconazol + Azoxistrobina',        costo:28,   dosis:'kit/ha',         res:'28–35 d', mec:'SDHI + Triazol + Strobil · 3 MoA',sdhi:true,  fus:'Excelente', col:'#C9184A', tier:'Premium' },
+  { id:'orquesta',nombre:'Orquesta Ultra',  activo:'Fluxapyroxad + Epoxiconazol + Piraclostrobina',        costo:34.2, dosis:'1200 cc/ha',     res:'28–35 d', mec:'SDHI + Triazol + Strobil · 3 MoA',sdhi:true,  fus:'Moderado',  col:'#7B2D8B', tier:'Máximo' },
+];
+const MAX = 34.2;
+// ══════════════════════════════════════════════════════
+
+// Mapa de recomendaciones para Trigo + Enfermedades
+// Clave: acc-susc  ó  acc-susc-tam
+const RMAP = {
+  'Difícil-Alta':'miravis', 'Difícil-Media':'elatus', 'Difícil-Baja':'elatus',
+  // Macollaje
+  'Normal-Alta-Macollaje':'cripton',  'Normal-Media-Macollaje':'azoxy',  'Normal-Baja-Macollaje':'azoxy',
+  // Elongación
+  'Normal-Alta-Elongación':'cripton', 'Normal-Media-Elongación':'azoxy', 'Normal-Baja-Elongación':'azoxy',
+  // Espiga embuchada
+  'Normal-Alta-Espiga embuchada':'elatus', 'Normal-Media-Espiga embuchada':'opera', 'Normal-Baja-Espiga embuchada':'tebuconazole',
+  // Hoja bandera
+  'Normal-Alta-Hoja bandera':'elatus', 'Normal-Media-Hoja bandera':'opera', 'Normal-Baja-Hoja bandera':'tebuconazole',
+  // Grano lechoso
+  'Normal-Alta-Grano lechoso':'cripton', 'Normal-Media-Grano lechoso':'tebuconazole', 'Normal-Baja-Grano lechoso':'tebuconazole',
+  // Grano pastoso
+  'Normal-Alta-Grano pastoso':'tebuconazole', 'Normal-Media-Grano pastoso':'tebuconazole', 'Normal-Baja-Grano pastoso':'tebuconazole',
+};
+
+// Razonamiento detallado por escenario
+const WHY = {
+  'Difícil-Alta':        { por:'No podés arriesgarte a llegar tarde con material susceptible. Miravis Triple da 28–35 días de residual y es el más eficaz contra Fusarium (Giberela) del grupo. A $28/ha sale igual o menos que dos pasadas con Azoxy Cipro sumando la logística.', pts:['Máximo residual: 28–35 días','3 MoA — menor riesgo de resistencias','Mejor control anti-Giberela — crítico en Entre Ríos'], alt:'orquesta', altN:'Similar residual pero $6/ha más caro y menor actividad Fusarium.', tip:'Aplicá en el primer momento transitable, aunque sea unos días antes del ideal. El residual lo cubre.' },
+  'Difícil-Media':       { por:'El SDHI de Elatus Ace da 26–30 días de ventana frente a los 18–22 días de un Strobil+Triazol. Sale prácticamente igual que Cripton/Eilat pero con 8+ días más de residual — clave cuando no sabés cuándo vas a poder entrar.', pts:['Residual extendido: 26–30 días vs 18–22 de Cripton/Eilat','SDHI incluido: mejor sistemia y persistencia','$18/ha — casi igual que Cripton/Eilat ($17.15)'], alt:null, altN:null, tip:'Si la campaña arranca con alta presión de Roya amarilla, escalá a Miravis Triple.' },
+  'Difícil-Baja':        { por:'Aunque el material sea tolerante, el acceso difícil justifica el residual extendido de Elatus Ace. La diferencia frente a Cripton/Eilat es $1/ha y ganás 8+ días de cobertura — red de seguridad ante ventanas de aplicación impredecibles.', pts:['$18/ha vs $17.15/ha de Cripton/Eilat — casi igual','+8 días de residual incluidos','SDHI: mejor actividad sistémica que Strobil clásico'], alt:null, altN:null, tip:'Con material tolerante Azoxy Cipro funciona, pero sin acceso confiable el residual corto es riesgo.' },
+  // Macollaje
+  'Normal-Alta-Macollaje':          { por:'Macollaje con material susceptible: la presión es baja en esta etapa pero vale arrancar con una aplicación preventiva. Cripton/Eilat cubre Septoria y Royas que pueden desarrollarse en macollaje tardío, y tiene residual suficiente para llegar a elongación.', pts:['Preventivo eficiente en etapa temprana','Cripton/Eilat: buen espectro Septoria + Royas a $17.15/ha','La aplicación de hoja bandera sigue siendo la más crítica'], alt:'azoxy', altN:'Con presión baja real, Azoxy Cipro cumple y guardás margen para la aplicación de bandera.', tip:'No pierdas de vista la aplicación de hoja bandera — es la más importante del ciclo.' },
+  'Normal-Media-Macollaje':         { por:'Macollaje con material medio: la primera aplicación en esta etapa es opcional. Azoxy Cipro como preventivo base es suficiente — guardás presupuesto para la aplicación crítica de hoja bandera o elongación tardía.', pts:['Etapa de menor riesgo relativo','Azoxy Cipro como base preventiva suficiente','Reservás margen para la aplicación más crítica del ciclo'], alt:null, altN:null, tip:'Si ves síntomas tempranos de Septoria, escalá a Cripton/Eilat.' },
+  'Normal-Baja-Macollaje':          { por:'Material tolerante en macollaje: riesgo bajo. Azoxy Cipro es el techo económico razonable. Con baja susceptibilidad, la aplicación en esta etapa tiene retorno bajo — evaluá si es necesaria.', pts:['Riesgo muy bajo en esta combinación','$11.4/ha — costo mínimo del grupo','La aplicación de hoja bandera tiene mayor impacto en rendimiento'], alt:null, altN:null, tip:'Con material tolerante en macollaje, evaluá bien si la aplicación justifica el costo.' },
+  // Elongación
+  'Normal-Alta-Elongación':         { por:'Elongación con material susceptible: la presión empieza a subir y es buen momento preventivo. Cripton/Eilat cubre Septoria y Royas con residual suficiente para llegar hasta espiga embuchada.', pts:['Etapa de presión creciente — buena oportunidad preventiva','Cripton/Eilat: espectro sólido para Septoria y Royas','Residual 20–22 días llega bien a espiga embuchada'], alt:'azoxy', altN:'Con presión baja real podés ir con Azoxy y guardás margen para la aplicación de bandera.', tip:'No dejes pasar la aplicación de hoja bandera — es la más importante del ciclo.' },
+  'Normal-Media-Elongación':        { por:'Elongación con material medio: Azoxy Cipro es preventivo suficiente. La aplicación crítica sigue siendo la de hoja bandera.', pts:['Preventivo eficiente a bajo costo','Residual 18–21 días llega a espiga embuchada','Margen para escalar en hoja bandera si hace falta'], alt:null, altN:null, tip:'Monitoreá Roya amarilla que puede avanzar rápido en elongación.' },
+  'Normal-Baja-Elongación':         { por:'Material tolerante en elongación: Azoxy Cipro como preventivo base es suficiente. El momento más crítico del ciclo sigue siendo la hoja bandera.', pts:['Bajo riesgo relativo en esta etapa','$11.4/ha — costo mínimo','Reservá presupuesto para hoja bandera'], alt:null, altN:null, tip:'Una pasada bien timed en hoja bandera tiene más impacto que esta en elongación.' },
+  // Espiga embuchada
+  'Normal-Alta-Espiga embuchada':   { por:'Espiga embuchada con material susceptible: momento clave antes de la espigazón. Elatus Ace con su SDHI da 26–30 días de residual cubriendo hoja bandera y llegando hasta espigazón, donde el riesgo de Giberela es máximo.', pts:['Residual 26–30 días cubre hasta espigazón','Protege la hoja bandera — mayor aporte al rendimiento','SDHI: mejor actividad sistémica y persistencia'], alt:'cripton', altN:'Si llegás en timing exacto y la presión es moderada, Cripton/Eilat a $17.15 es alternativa válida.', tip:'Con lluvia en espigazón escalá a Miravis Triple para cubrir Giberela.' },
+  'Normal-Media-Espiga embuchada':  { por:'Espiga embuchada con material medio: Opera a $19/ha tiene mejor actividad curativa sobre Fusarium (Giberela) que Cripton/Eilat — diferencia clave acercándose a espigazón en Entre Ríos. Vale el $1.85 extra por ha en este estadio crítico.', pts:['$19/ha — diferencia mínima vs Cripton con cobertura Fusarium superior','Residual 20–22 días cubre la espigazón','Pyraclostrobina + Epoxiconazol: mejor espectro en hojas críticas'], alt:'cripton', altN:'Si el año viene seco y sin riesgo de Giberela, Cripton/Eilat a $17.15 cumple y ahorrás $1.85/ha.', tip:'Con lluvia en espigazón, escalá a Miravis Triple independientemente de lo que aplicaste acá.' },
+  'Normal-Baja-Espiga embuchada':   { por:'Material tolerante en espiga embuchada: Azoxy Cipro cubre el riesgo base. Sus 18–21 días de residual llegan bien hasta espigazón.', pts:['Material tolerante reduce el riesgo','Residual suficiente para llegar a espigazón','$11.4/ha — costo mínimo del grupo'], alt:null, altN:null, tip:'Si llueve mucho en espigazón, evaluá cobertura anti-Giberela independientemente de la susceptibilidad.' },
+  // Hoja bandera
+  'Normal-Alta-Hoja bandera':       { por:'Hoja bandera con material susceptible: la aplicación más importante del ciclo. Elatus Ace con SDHI da 26–30 días de residual cubriendo el período crítico completo hasta llenado de grano. La hoja bandera aporta hasta el 70% del rendimiento.', pts:['La aplicación más importante del ciclo — no la comprometas','SDHI + Triazol: máxima sistemia y persistencia','Residual 26–30 días cubre hasta grano pastoso'], alt:'cripton', altN:'Si llegás en el momento exacto con presión moderada, Cripton/Eilat a $17.15 es alternativa válida.', tip:'Con lluvia en espigazón, escalá a Miravis Triple para cubrir Giberela — no lo dudes.' },
+  'Normal-Media-Hoja bandera':      { por:'Hoja bandera con material medio: Opera tiene mejor actividad sobre Fusarium (Giberela) que Cripton/Eilat por $1.85/ha más — en la aplicación más importante del ciclo, esa diferencia vale. Las hojas bandera y sub-bandera aportan el 70% del rendimiento.', pts:['La aplicación más importante del ciclo — no la comprometas','Opera: mejor cobertura Fusarium que Cripton en el momento crítico','$19/ha — mínima diferencia para el máximo impacto en rendimiento'], alt:'cripton', altN:'Con año seco y sin riesgo de Giberela, Cripton/Eilat a $17.15 es alternativa válida.', tip:'Con lluvia en espigazón, escalá a Miravis Triple — no lo dudes aunque el material sea de susceptibilidad media.' },
+  'Normal-Baja-Hoja bandera':       { por:'Material tolerante en hoja bandera: aunque la susceptibilidad es baja, esta sigue siendo la aplicación más importante del ciclo. Azoxy Cipro cubre el riesgo base eficientemente.', pts:['Momento de mayor impacto en rendimiento','$11.4/ha con cobertura preventiva suficiente','Material tolerante reduce el riesgo de pérdida significativa'], alt:null, altN:null, tip:'Una sola pasada bien timed en hoja bandera es lo más importante que podés hacer en el ciclo.' },
+  // Grano lechoso
+  'Normal-Alta-Grano lechoso':      { por:'Grano lechoso con material susceptible: la ventana foliar está cerrando. Cripton/Eilat puede cubrir Giberela tardía y enfermedades de tallo si hay presión activa. Evaluá si el cultivo justifica la inversión a esta altura.', pts:['Etapa tardía — ventana de absorción reducida','Cripton/Eilat: mejor relación costo-beneficio en este momento','Si la hoja bandera estuvo bien cubierta, el riesgo es menor'], alt:null, altN:null, tip:'En grano lechoso el retorno económico es menor que en hoja bandera. Priorizá que la aplicación anterior haya sido la correcta.' },
+  'Normal-Media-Grano lechoso':     { por:'Grano lechoso con material medio: etapa tardía. Si hay presión de enfermedad activa, Azoxy Cipro como cierre a bajo costo es lo más razonable.', pts:['Etapa tardía — presupuesto moderado justificado','Azoxy Cipro: cierre económico si hay presión activa','Retorno económico menor que en etapas anteriores'], alt:null, altN:null, tip:'La aplicación más importante ya pasó. Esta es de mantenimiento si hay presión activa visible.' },
+  'Normal-Baja-Grano lechoso':      { por:'Material tolerante en grano lechoso: con baja susceptibilidad y etapa tardía, el retorno de la aplicación es bajo. Azoxy Cipro cubre el riesgo mínimo si hay presión activa visible.', pts:['Mínima inversión justificada en etapa tardía','Material tolerante limita el riesgo residual','$11.4/ha — costo mínimo del grupo'], alt:null, altN:null, tip:'Evaluá bien si la presión activa justifica la inversión a esta altura del ciclo.' },
+  'Normal-Baja-Espiga embuchada':   { por:'Material tolerante en espiga embuchada: Tebuconazole a $7.6/ha aporta cobertura específica anti-Fusarium (Giberela) acercándose a espigazón. Por solo $2.2 más que Azoxy Cipro, cubrís el riesgo más relevante de esta etapa en Entre Ríos.', pts:['Buena actividad anti-Fusarium desde espiga embuchada','$7.6/ha — muy económico para la cobertura que da','Residual 18–22 días llega bien hasta espigazón'], alt:'azoxy', altN:'Con año seco y sin riesgo de Giberela, Azoxy Cipro a $5.4/ha cumple como preventivo base.', tip:'Con lluvia en espigazón, escalá a Miravis Triple — independientemente de la susceptibilidad del material.' },
+  'Normal-Baja-Hoja bandera':       { por:'Material tolerante en hoja bandera: Tebuconazole tiene buena actividad anti-Fusarium (Giberela) a solo $7.6/ha. Por $2.2 más que Azoxy Cipro cubrís el riesgo más relevante de espigazón, que en Entre Ríos no depende solo de la susceptibilidad del material.', pts:['Hoja bandera: empieza el riesgo real de Giberela','Tebuconazole: mejor cobertura Fusarium del grupo económico','$7.6/ha — mínima inversión para cobertura anti-Giberela'], alt:'azoxy', altN:'Con año seco y presión mínima, Azoxy Cipro a $5.4/ha cumple como preventivo base.', tip:'Con lluvia en espigazón, escalá a Miravis Triple — no lo dudes aunque el material sea tolerante.' },
+  'Normal-Baja-Grano lechoso':      { por:'Grano lechoso con material tolerante: en etapa tardía el riesgo más relevante es Fusarium residual. Tebuconazole a $7.6/ha es la opción más eficiente y específica para ese riesgo, por solo $2.2 más que Azoxy Cipro.', pts:['Etapa tardía — Fusarium es el riesgo principal','Tebuconazole: mejor cobertura Fusarium del grupo económico','$7.6/ha — costo mínimo justificado para esta etapa'], alt:null, altN:null, tip:'En grano lechoso el retorno es menor que en hoja bandera. Si la de bandera fue correcta, el riesgo adicional es bajo.' },
+  'Normal-Media-Grano lechoso':     { por:'Grano lechoso con material medio: etapa tardía con foco en Fusarium residual. Tebuconazole a $7.6/ha da cobertura específica anti-Giberela a costo mínimo — más eficiente que Azoxy Cipro para este momento del ciclo.', pts:['Foco en Fusarium en etapa tardía','$7.6/ha — económico y específico para el riesgo actual','Mejor cobertura Fusarium que Azoxy Cipro por $2.2 más'], alt:null, altN:null, tip:'La aplicación más importante ya pasó. Esta es de cierre si hay presión activa visible.' },
+  // Grano pastoso
+  'Normal-Alta-Grano pastoso':      { por:'Grano pastoso: ventana casi cerrada. Si hay presión activa de Fusarium visible, Tebuconazole es la opción más eficiente — específico para el riesgo de esta etapa y a bajo costo.', pts:['Ventana foliar casi cerrada','Tebuconazole: específico para Fusarium en etapa final','$7.6/ha — única inversión con algún sentido a esta altura'], alt:null, altN:null, tip:'En grano pastoso el retorno económico es muy bajo. Asegurate de que la aplicación de hoja bandera haya sido la correcta — ahí estaba el mayor impacto.' },
+  'Normal-Media-Grano pastoso':     { por:'Grano pastoso con material medio: etapa muy tardía. Solo si hay presión de Fusarium activa y visible se justifica la inversión. Tebuconazole a $7.6/ha es lo más eficiente para ese riesgo específico.', pts:['Etapa final — retorno económico muy bajo','Tebuconazole: foco en Fusarium si hay presión visible','$7.6/ha — costo mínimo justificable'], alt:null, altN:null, tip:'La decisión en grano pastoso debería ser excepcional. Evaluá bien si la presión justifica el gasto.' },
+  'Normal-Baja-Grano pastoso':      { por:'Material tolerante en grano pastoso: ventana casi cerrada y riesgo mínimo. Solo si hay presión de Fusarium visible tiene algún sentido aplicar. Tebuconazole a $7.6/ha es lo único que puede justificarse en esta etapa.', pts:['Material tolerante + etapa tardía = riesgo mínimo','Tebuconazole si hay Fusarium visible — específico y económico','$7.6/ha — mínima inversión posible'], alt:null, altN:null, tip:'Con material tolerante en grano pastoso, en la mayoría de los casos la inversión no se justifica.' },
+};
+
+// Estado
+const S = { cultivo:null, problema:null, susc:null, tam:null, acc:null, mancha:null, roya:[], cantRoya:null, maizTiming:null, maizCond:null };
+
+function pick(campo, btn) {
+  const val = btn.dataset.v;
+  S[campo] = val;
+  btn.closest('.opts').querySelectorAll('.opt').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+
+  if (campo === 'cultivo')  { S.problema=S.susc=S.tam=S.acc=S.mancha=S.cantRoya=S.maizTiming=S.maizCond=null; S.roya=[]; resetGrupos(['g-problema','g-susc','g-tam','g-acc','g-mancha','g-roya','g-cant-roya','g-maiz-timing','g-maiz-cond']); document.getElementById('result').innerHTML=''; }
+  if (campo === 'problema') { S.susc=S.tam=S.acc=S.mancha=S.cantRoya=S.maizTiming=S.maizCond=null; S.roya=[]; resetGrupos(['g-susc','g-tam','g-acc','g-mancha','g-roya','g-cant-roya','g-maiz-timing','g-maiz-cond']); document.getElementById('result').innerHTML=''; }
+  if (campo === 'maizTiming') { S.maizCond=null; resetGrupos(['g-maiz-cond']); document.getElementById('result').innerHTML=''; }
+  if (campo === 'susc')     { S.mancha=S.cantRoya=null; S.roya=[]; resetGrupos(['g-mancha','g-roya','g-cant-roya']); document.getElementById('result').innerHTML=''; }
+  if (campo === 'tam')      { S.mancha=S.cantRoya=null; S.roya=[]; resetGrupos(['g-mancha','g-roya','g-cant-roya']); document.getElementById('result').innerHTML=''; }
+  if (campo === 'acc')      { S.mancha=S.cantRoya=null; S.roya=[]; resetGrupos(['g-mancha','g-roya','g-cant-roya']); document.getElementById('result').innerHTML=''; }
+  if (campo === 'mancha')   { document.getElementById('result').innerHTML=''; }
+
+  actualizar();
+}
+
+function pickRoya(btn) {
+  const val = btn.dataset.v;
+  if (val === 'Sin presencia') {
+    S.roya = ['Sin presencia'];
+    S.cantRoya = null;
+    resetGrupos(['g-cant-roya']);
+  } else {
+    S.roya = S.roya.filter(r => r !== 'Sin presencia');
+    if (S.roya.includes(val)) {
+      S.roya = S.roya.filter(r => r !== val);
+    } else {
+      S.roya.push(val);
+    }
+    if (S.roya.length === 0) { S.cantRoya = null; resetGrupos(['g-cant-roya']); }
+  }
+  document.querySelectorAll('#g-roya .opt').forEach(b => {
+    b.classList.toggle('on', S.roya.includes(b.dataset.v));
+  });
+  document.getElementById('result').innerHTML = '';
+  actualizar();
+}
+
+function resetGrupos(ids) {
+  ids.forEach(id => document.querySelectorAll(`#${id} .opt`).forEach(b => b.classList.remove('on')));
+}
+
+// ══════════════════════════════════════════════════════
+// MAÍZ PRE-EMERGENTES — precios con IVA 10.5%
+// Atrazina: actualizar precio cuando esté disponible
+const ATR_KG  = 5.9;   // $/kg
+const SMETO_L = 6.9;   // $/L sin IVA
+const IVA     = 1.105; // 10.5% IVA agro
+// ══════════════════════════════════════════════════════
+const MAIZ_PROD = {
+  fierce:           { nombre:'Fierce',                 activo:'Flumioxazin + Piroxasulfone',  dosis:'500 cc',         costo: +(56*IVA*0.5).toFixed(2),                    col:'#2D6A4F', tier:'Pre-siembra' },
+  adengoPreSiembra: { nombre:'Adengo + Atrazina',      activo:'Adengo + Atrazina',            dosis:'500 cc + 1 kg',  costo: +(98*IVA*0.5 + ATR_KG).toFixed(2),           col:'#B08A05', tier:'Pre-siembra' },
+  atrSmeto:         { nombre:'Atrazina + S-metolacloro',activo:'Atrazina + S-metolacloro',   dosis:'1.3 L + 1.2 L',  costo: +(ATR_KG*1.3 + SMETO_L*1.2).toFixed(2),     col:'#2D6A4F', tier:'Pre-emergente' },
+  terbuSmeto:       { nombre:'Terbu + S-metolacloro',  activo:'Terbutilazina 50% + S-meto',  dosis:'1.8 L + 1.2 L',  costo: +(6.5*IVA*1.8 + SMETO_L*1.2).toFixed(2),    col:'#B08A05', tier:'Pre-emergente' },
+  acuronSmeto:      { nombre:'Acuron + S-metolacloro', activo:'Acuron + S-metolacloro',      dosis:'1 L + 1 L',      costo: +(37*IVA + SMETO_L).toFixed(2),              col:'#C45A10', tier:'Pre-emergente' },
+  adengoAtrPre:     { nombre:'Adengo + Atrazina',      activo:'Adengo + Atrazina',            dosis:'500 cc + 1 kg',  costo: +(98*IVA*0.5 + ATR_KG).toFixed(2),           col:'#B08A05', tier:'Pre-emergente' },
+  adengoV1:         { nombre:'Adengo (solo)',           activo:'Adengo 480SC',                dosis:'400 cc',         costo: +(98*IVA*0.4).toFixed(2),                    col:'#C9184A', tier:'Rescate V1' },
+};
+
+const MAIZ_RECS = {
+  'antes':              'fierce',
+  'pre-capinYuyo':      'acuronSmeto',
+  'pre-lluvioso':       'terbuSmeto',
+  'pre-normal':         'atrSmeto',
+  'pre-adengoAtr':      'adengoAtrPre',
+  'nacio':              'adengoV1',
+};
+
+const MAIZ_WHY = {
+  fierce: {
+    por:'La estrategia más inteligente cuando podés planificar: aplicás 10-15 días antes de la siembra, adelantás el trabajo y entrás a sembrar con el lote limpio. Sin presión sobre la ventana pre-emergente.',
+    pts:['Adelantás el trabajo — entrás a sembrar con el lote limpio','Eliminás la dependencia del clima post-siembra','Espectro amplio de malezas en pre-siembra'],
+    alerta:'Carencia de 10 días entre aplicación y siembra. No sembrar antes de que pasen los 10 días.',
+    tip:'Si después de la siembra igual querés reforzar, un pre-emergente liviano es complementario.'
+  },
+  adengoPreSiembra: {
+    por:'Adengo + Atrazina en pre-siembra combina el mecanismo de Adengo con la persistencia de Atrazina. Útil cuando querés rotar mecanismo vs Fierce o cuando el lote tiene historia de malezas difíciles.',
+    pts:['Mecanismo diferente a Fierce — rotación de MOA','Espectro ampliado con Atrazina sobre gramíneas','Válido hasta siembra (a diferencia del Adengo post-emergente que va hasta V1)'],
+    alerta:'Carencia de 10-15 días entre aplicación y siembra. Verificá etiqueta de Adengo para restricciones de cultivo sucesor.',
+    tip:'Fierce a $30.94 es más barato ($29 menos) si no hay malezas difíciles específicas. Usá Adengo cuando tengas historia de fallas con Fierce.'
+  },
+  atrSmeto: {
+    por:'La opción más económica para pre-emergentes en condiciones normales. Atrazina + S-meto cubre bien el espectro general cuando no hay presión específica de capín o yuyo colorado y el año no viene muy lluvioso.',
+    pts:['El más barato del grupo pre-emergente','Cubre espectro amplio en condiciones normales','Clásico confiable en años secos o moderados'],
+    alerta:'Puede fallar en años de mucha lluvia por lixiviación. Evitar en lotes con historia de capín o yuyo colorado.',
+    tip:'Aplicar inmediatamente después de la siembra, antes de que emerja el maíz y las malezas.'
+  },
+  terbuSmeto: {
+    por:'Más persistente en suelo que la Atrazina — aguanta mejor en años lluviosos sin resignar demasiado en precio. Buena opción para productores que quieren rotar mecanismo sin el costo de Acuron.',
+    pts:['Mayor persistencia que Atrazina en suelos húmedos','Rotación de mecanismo de acción vs Atrazina','Costo intermedio — equilibrio entre performance y precio'],
+    alerta:null,
+    tip:'Ideal para el productor que viene de años con fallas de Atrazina y quiere algo más seguro sin llegar a Acuron.'
+  },
+  acuronSmeto: {
+    por:'La mejor opción cuando hay capín o yuyo colorado — Acuron tiene la mayor actividad sobre esas malezas problema. También el más robusto ante años muy lluviosos.',
+    pts:['El más eficaz contra capín y yuyo colorado','Alta persistencia en suelo — no se lava con lluvias','Espectro más amplio del grupo pre-emergente'],
+    alerta:'Pre-emergente estricto: aplicar después de la siembra, antes de emergencia del maíz.',
+    tip:'Pre-emergente estricto: aplicar después de la siembra, antes de emergencia del maíz.'
+  },
+  adengoAtrPre: {
+    por:'Adengo + Atrazina en pre-emergente combina el espectro de Adengo con la persistencia de Atrazina. Buena opción para rotar mecanismo de acción vs las combinaciones con S-metolacloro.',
+    pts:['Mecanismo diferente a las combinaciones con S-meto — rotación MOA','Espectro complementario: Adengo en gramíneas + Atrazina en latifoliadas','Mismo producto que podés usar pre-siembra o pre-emergente'],
+    alerta:null,
+    tip:'A $60.05/ha es el más caro del grupo pre-emergente. Usalo cuando querés rotación de mecanismo o tenés historia de fallas con S-metolacloro.'
+  },
+  adengoV1: {
+    por:'El salvavidas cuando se perdió la ventana pre-emergente. Con el maíz ya nacido, Adengo 400cc solo (sin Atrazina) se puede aplicar hasta V1 cubriendo las malezas que ya emergieron.',
+    pts:['El único del grupo que funciona con maíz nacido (hasta V1)','400 cc solo — sin necesidad de mezclar con Atrazina en post-emergencia','Rescata situaciones de lluvia prolongada post-siembra'],
+    alerta:'No pasar de V1. Después de ese estadio las malezas ya compitieron en el período crítico del maíz.',
+    tip:'La próxima campaña, planificá con Fierce antes de sembrar para no llegar a esta situación.'
+  },
+};
+
+const ETAPA_INFO = {
+  'Macollaje':        { col:'#2D6A4F', label:'Preventivo temprano', txt:'Septoria y Mancha amarilla aparecen en hojas bajas — no afectan el rinde aún pero generan inóculo que va a subir. Monitoreá incidencia. Con material susceptible, reducir la presión acá paga después.' },
+  'Elongación':       { col:'#3A8060', label:'Presión creciente', txt:'Septoria y Mancha amarilla suben desde las hojas bajas. Buena ventana para aplicar preventivo antes de que lleguen a las hojas que aportan al rendimiento.' },
+  'Espiga embuchada': { col:'#B08A05', label:'Zona crítica — inicio Giberela', txt:'Septoria + Mancha amarilla se acercan a hojas importantes. Empieza el riesgo de Giberela (Fusarium) acercándose a la espigazón. El producto tiene que cubrir ambos.' },
+  'Hoja bandera':     { col:'#C45A10', label:'Estadio más crítico del ciclo', txt:'La hoja bandera y sub-bandera aportan más del 70% del rendimiento. Septoria + Mancha amarilla + Giberela son los tres riesgos simultáneos. La aplicación acá tiene el mayor retorno económico del ciclo.' },
+  'Grano lechoso':    { col:'#6B7267', label:'Ventana cerrando', txt:'Septoria y Mancha amarilla ya sin retorno económico. El único riesgo relevante es Giberela residual si hay presión activa visible. El llenado de grano está en marcha.' },
+  'Grano pastoso':    { col:'#6B7267', label:'Ventana casi cerrada', txt:'Absorción foliar muy limitada. Solo aplicar si hay Giberela activa y visible. En la mayoría de los casos el retorno no justifica la inversión.' },
+};
+
+function actualizar() {
+  const { cultivo, problema, susc, tam, acc, mancha, cantRoya, maizTiming, maizCond } = S;
+  const roya = S.roya;
+  const teEnf = cultivo==='Trigo' && problema==='Enfermedades';
+  const esMaiz = cultivo==='Maíz' && problema==='Malezas';
+  const hayRoya = roya.length > 0 && !roya.includes('Sin presencia');
+  const conRoya = teEnf && acc && hayRoya;
+
+  vis('c-problema',    !!cultivo);
+  vis('c-susc',        teEnf);
+  vis('c-tam',         teEnf);
+  vis('c-acc',         teEnf);
+  vis('c-mancha',      !!(teEnf && acc));
+  vis('c-roya',        !!(teEnf && acc && mancha));
+  vis('c-cant-roya',   conRoya);
+  vis('c-maiz-timing', !!(esMaiz));
+  
+  vis('c-maiz-cond',   !!(esMaiz && maizTiming === 'pre'));
+  vis('c-soon',        !!(problema && !teEnf && !esMaiz));
+  vis('c-btn',         !!(cultivo && problema));
+  vis('c-warn',        teEnf);
+
+  if (conRoya) {
+    const multi = roya.filter(r=>r!=='Sin presencia').length > 1;
+    document.querySelector('#c-cant-roya .c-lbl').textContent = multi
+      ? '8 · Intensidad de las royas' : '8 · Intensidad de la roya';
+  }
+  const info = tam ? ETAPA_INFO[tam] : null;
+  vis('c-enfinfo', !!(teEnf && tam));
+  if (info) {
+    document.getElementById('c-enfinfo').style.borderLeftColor = info.col;
+    document.getElementById('enf-badge').style.background = info.col+'22';
+    document.getElementById('enf-badge').style.color = info.col;
+    document.getElementById('enf-badge').textContent = info.label;
+    document.getElementById('enf-texto').textContent = info.txt;
+  }
+
+  const btn = document.getElementById('btn-c');
+  const royaOk = roya.length > 0 && (!hayRoya || cantRoya);
+  const maizOk = esMaiz && maizTiming && (maizTiming === 'nacio' || maizTiming === 'antes' || (maizTiming === 'pre' && maizCond));
+  const listo = cultivo && problema && (
+    (teEnf && susc && tam && acc && mancha && royaOk) ||
+    maizOk ||
+    (!teEnf && !esMaiz)
+  );
+
+  if (listo) { btn.className='btn-c ok'; btn.textContent='→  Ver recomendación'; }
+  else {
+    btn.className='btn-c no';
+    let falta = [];
+    if (teEnf) falta = [!susc&&'Susceptibilidad',!tam&&'Estadio',!acc&&'Acceso',!mancha&&'Manchas',roya.length===0&&'Roya',(conRoya&&!cantRoya)&&'Intensidad roya'].filter(Boolean);
+    if (esMaiz) falta = [!maizTiming&&'Momento de aplicación',(maizTiming==='pre'&&!maizCond)&&'Condición del lote'].filter(Boolean);
+    btn.textContent = falta.length ? 'Falta: '+falta.join(', ') : 'Completá las variables';
+  }
+}
+
+function aplicarModificador(baseId, mancha, roya, cantRoya) {
+  const orden = ['carbendazim','azoxy','tebuconazole','cripton','opera','elatus','miravis','orquesta'];
+  const hayRoya    = roya.length > 0 && !roya.includes('Sin presencia');
+  const isTallo    = roya.includes('Tallo');
+  const isAmarilla = roya.includes('Amarilla');
+  const multi      = roya.filter(r=>r!=='Sin presencia').length > 1;
+  const hayMancha  = mancha && mancha !== 'Sin presencia';
+
+  let minMancha = baseId;
+  if (mancha === 'Media') minMancha = 'cripton';
+  if (mancha === 'Mucha') minMancha = 'cripton';
+
+  let minRoya = baseId;
+  if (hayRoya) {
+    if (isTallo) {
+      if (cantRoya === 'Poca')  minRoya = 'cripton';
+      if (cantRoya === 'Media') minRoya = 'elatus';
+      if (cantRoya === 'Mucha') minRoya = 'miravis';
+    } else {
+      if (cantRoya === 'Media') minRoya = 'cripton';
+      if (cantRoya === 'Mucha') minRoya = 'elatus';
+    }
+    if (multi && cantRoya === 'Media' && !isTallo) minRoya = 'elatus';
+    if (multi && cantRoya === 'Mucha' && !isTallo) minRoya = 'miravis';
+  }
+
+  const idxBase  = orden.indexOf(baseId);
+  const idxM     = orden.indexOf(minMancha);
+  const idxR     = orden.indexOf(minRoya);
+  const idxFinal = Math.max(idxBase, idxM, idxR);
+  const finalId  = orden[idxFinal];
+  const escalado = finalId !== baseId;
+
+  const royaNombres = roya.filter(r=>r!=='Sin presencia')
+    .map(r=>r==='Tallo'?'Roya de tallo':r==='Amarilla'?'Roya amarilla':'Roya anaranjada').join(' + ');
+
+  const alertas = [];
+  if (isTallo) alertas.push('URGENTE — Roya de tallo: la más agresiva del grupo. Avanza muy rápido y puede colapsar el cultivo en días. Aplicá lo antes posible.');
+  if (multi && !isTallo) alertas.push(`Presencia simultánea de ${royaNombres}: la combinación escala la recomendación un nivel adicional.`);
+  if (hayMancha && hayRoya) alertas.push(`Doble presión: manchas foliares (${mancha.toLowerCase()}) + ${royaNombres}. El producto necesita actividad curativa sobre ambas.`);
+  else if (mancha === 'Mucha') alertas.push('Manchas foliares en alta presión: necesitás actividad curativa. Aplicá cuanto antes.');
+  else if (cantRoya === 'Mucha' && !isTallo) alertas.push(`Alta presión de ${royaNombres}: aplicá cuanto antes para cortar el avance.`);
+  else if (cantRoya === 'Media' && isAmarilla) alertas.push('Roya amarilla media: avanza rápido con humedad. No demores la aplicación.');
+
+  let notaEscalado = null;
+  if (escalado) {
+    const razones = [];
+    if (hayMancha && mancha !== 'Poca' && idxM > idxBase) razones.push(`manchas ${mancha.toLowerCase()}`);
+    if (hayRoya && idxR > idxBase) razones.push(`${royaNombres} ${cantRoya?.toLowerCase()}${multi?' (doble roya)':''}`);
+    if (razones.length) notaEscalado = `Escalado por: ${razones.join(' + ')}.`;
+  }
+
+  return { finalId, escalado, alerta: alertas.join(' ') || null, baseId, notaEscalado };
+}
+
+
+function consultar() {
+  const { cultivo, problema, susc, tam, acc, mancha, cantRoya, maizTiming, maizCond } = S;
+  const roya = S.roya;
+  const teEnf = cultivo==='Trigo' && problema==='Enfermedades';
+  const esMaiz = cultivo==='Maíz' && problema==='Malezas';
+  if (!cultivo || !problema) return;
+
+  // ── Maíz pre-emergentes ──────────────────────────────
+  if (esMaiz) {
+    if (!maizTiming) return;
+    
+    if (maizTiming === 'pre' && !maizCond) return;
+    const key = maizTiming === 'pre' ? `pre-${maizCond}` : maizTiming;
+    const prodId = MAIZ_RECS[key];
+    const p = MAIZ_PROD[prodId];
+    const w = MAIZ_WHY[prodId];
+    const pct = Math.round(p.costo / 65 * 100); // max ~$65 (adengo)
+    const c = p.col;
+    const alertaHTML = (p.costo === 0 || w.alerta) ? `
+      <div style="background:#FFFBEA;border:.5px solid #E8D040;border-radius:var(--r);padding:13px 16px;margin-bottom:10px;display:flex;gap:12px">
+        <div style="width:26px;height:26px;border-radius:50%;background:#FBBF24;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#78350F;flex-shrink:0">!</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#78350F;margin-bottom:3px">Atención</div>
+          <div style="font-size:13px;color:#92400E;line-height:1.5">${w.alerta}${p.costo === 0 ? ' El precio de Atrazina está como placeholder — actualizarlo en el código.' : ''}</div>
+        </div>
+      </div>` : '';
+    document.getElementById('result').innerHTML = `
+<div style="margin:10px 14px 0" class="pop">
+  ${alertaHTML}
+  <div class="rc">
+    <div class="rc-top" style="background:${c}10;border-top:3px solid ${c}">
+      <span class="chip" style="background:${c}22;color:${c}">${p.tier}</span>
+      <div class="rc-name" style="color:${c}">${p.nombre}</div>
+      <div class="rc-price" style="color:${c}">US$ ${p.costo} / ha</div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${c}"></div></div>
+      <div class="bar-meta"><span>$0</span><span>Costo relativo del grupo maíz</span><span>$65</span></div>
+    </div>
+    <div class="rc-body">
+      <div class="rr"><div class="rr-l">Por qué este producto</div><div class="rr-v">${w.por}</div></div>
+      <div class="rr">
+        <div class="rr-l">Puntos clave</div>
+        <ul style="padding-left:18px;margin:0">
+          ${w.pts.map(pt=>`<li style="font-size:14px;color:var(--tx);line-height:1.55;margin-bottom:3px">${pt}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="rr"><div class="rr-l">Composición · Dosis</div><div class="rr-s">${p.activo} · ${p.dosis}</div></div>
+      <div class="div-sep" style="border:none;padding:0;margin-top:14px"><div class="rr-l">Consejo</div><div class="rr-s">${w.tip}</div></div>
+    </div>
+  </div>
+  <div style="margin-top:10px;background:var(--sf);border-radius:var(--r);border:.5px solid var(--br);padding:14px 16px">
+    <div class="rr-l" style="margin-bottom:10px">Todas las opciones</div>
+    ${Object.entries(MAIZ_PROD).map(([id,pr])=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--br)">
+        <div style="flex:1"><div style="font-size:13px;font-weight:${id===prodId?700:500};color:${id===prodId?pr.col:'var(--tx)'}">${pr.nombre}</div>
+        <div style="font-size:10px;color:var(--mu)">${pr.dosis} · ${pr.tier}</div></div>
+        <div style="font-size:13px;font-weight:700;color:${pr.col}">$${pr.costo}</div>
+      </div>`).join('')}
+  </div>
+</div>`;
+    setTimeout(()=>document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'}),120);
+    return;
+  }
+
+  // ── Cultivos no implementados ─────────────────────────
+  if (!teEnf) {
+    document.getElementById('result').innerHTML = `
+      <div class="card" style="margin-top:10px">
+        <p style="font-size:14px;color:var(--mu);line-height:1.6">
+          <strong>${cultivo} · ${problema}</strong> estará disponible próximamente. Consultá directamente con el asesor.
+        </p>
+      </div>`;
+    return;
+  }
+
+  const hayRoya = roya.length > 0 && !roya.includes('Sin presencia');
+  if (!susc || !tam || !acc || !mancha || roya.length === 0) return;
+  if (hayRoya && !cantRoya) return;
+
+  const accKey = acc==='Difícil' ? 'Difícil' : 'Normal';
+  const key = acc==='Difícil' ? `${accKey}-${susc}` : `${accKey}-${susc}-${tam}`;
+  const baseRecId = RMAP[key];
+  const w = WHY[key];
+  if (!baseRecId || !w) return;
+
+  const { finalId, escalado, alerta: enfAlerta, baseId, notaEscalado } = aplicarModificador(baseRecId, mancha, roya, cantRoya);
+  const p = PROD.find(x => x.id===finalId);
+  const pct = Math.round(p.costo/MAX*100);
+  const c = p.col;
+  const altP = w.alt ? PROD.find(x=>x.id===w.alt) : null;
+  const baseP = PROD.find(x=>x.id===baseId);
+
+  const escaladoHTML = escalado ? `
+    <div class="rr" style="background:#FFF9EC;border-radius:8px;padding:10px 12px;margin-bottom:14px">
+      <div class="rr-l" style="color:#92400E">Producto escalado por enfermedades detectadas</div>
+      <div class="rr-s" style="color:#78350F">Base: <strong>${baseP.nombre}</strong> ($${baseP.costo}/ha) → <strong>${p.nombre}</strong> ($${p.costo}/ha). ${notaEscalado||''}</div>
+    </div>` : '';
+
+  const alertaFinal = enfAlerta || null;
+  const alertaHTML = alertaFinal ? `
+    <div style="background:#FFFBEA;border:.5px solid #E8D040;border-radius:var(--r);padding:13px 16px;margin-bottom:10px;display:flex;gap:12px">
+      <div style="width:26px;height:26px;border-radius:50%;background:#FBBF24;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#78350F;flex-shrink:0">!</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#78350F;margin-bottom:3px">Alerta</div>
+        <div style="font-size:13px;color:#92400E;line-height:1.5">${alertaFinal}</div>
+      </div>
+    </div>` : '';
+
+  document.getElementById('result').innerHTML = `
+<div style="margin:10px 14px 0" class="pop">
+  ${alertaHTML}
+  <div class="rc">
+    <div class="rc-top" style="background:${c}10;border-top:3px solid ${c}">
+      <span class="chip" style="background:${c}22;color:${c}">${p.tier}${p.sdhi?' · SDHI':''}</span>
+      <div class="rc-name" style="color:${c}">${p.nombre}</div>
+      <div class="rc-price" style="color:${c}">US$ ${p.costo} / ha</div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${c}"></div></div>
+      <div class="bar-meta"><span>$0</span><span>Costo relativo del grupo</span><span>$34.2</span></div>
+    </div>
+    <div class="rc-body">
+      ${escaladoHTML}
+      <div class="rr"><div class="rr-l">Por qué este producto</div><div class="rr-v">${w.por}</div></div>
+      <div class="rr">
+        <div class="rr-l">Puntos clave</div>
+        <ul style="padding-left:18px;margin:0">
+          ${w.pts.map(pt=>`<li style="font-size:14px;color:var(--tx);line-height:1.55;margin-bottom:3px">${pt}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="rr"><div class="rr-l">Composición · Residual</div><div class="rr-s">${p.activo} · ${p.mec} · Residual ${p.res}</div></div>
+      ${altP&&!escalado?`<div class="div-sep"><div class="rr-l">Alternativa</div><p class="rr-v"><strong>${altP.nombre}</strong> — US$ ${altP.costo}/ha</p>${w.altN?`<p class="rr-s" style="margin-top:3px">${w.altN}</p>`:''}</div>`:''}
+      <div class="div-sep" style="border:none;padding:0;margin-top:14px"><div class="rr-l">Consejo de campaña</div><div class="rr-s">${w.tip}</div></div>
+    </div>
+  </div>
+  <button class="btn-sh" id="btn-sh" onclick="compartir()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    Compartir esta consulta
+  </button>
+</div>`;
+
+  armarTabla(finalId);
+  vis('c-ref', true);
+  setTimeout(()=>document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'}),120);
+}
+
+function armarTabla(hlId) {
+  document.getElementById('ref-tb').innerHTML = PROD.map(p=>`
+    <div class="ref-row${p.id===hlId?' hl':''}">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:${p.id===hlId?'#1B4332':'var(--tx)'}">${p.nombre}</div>
+        <div style="font-size:10px;color:var(--mu);margin-top:1px">${p.mec.split('·')[0].trim()}${p.fus!=='Débil'?' · Fusarium: '+p.fus:''}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:13px;font-weight:700;color:${p.col}">US$${p.costo}</div>
+        <div style="font-size:10px;color:var(--mu)">${p.res}</div>
+      </div>
+      <div class="ref-dot" style="background:${p.col}"></div>
+    </div>`).join('');
+}
+
+function compartir() {
+  const {susc,tam,acc} = S;
+  const url = location.href.split('?')[0]+'?s='+(susc||'')+'&t='+(tam||'')+'&a='+(acc||'');
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(()=>{
+      const b = document.getElementById('btn-sh');
+      if(b){b.textContent='¡Link copiado!';setTimeout(()=>{b.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Compartir esta consulta';},2500);}
+    });
+  } else { prompt('Copiá este link:', url); }
+}
+
+function vis(id, v) { const e=document.getElementById(id); if(e) e.style.display=v?'':'none'; }
+
+// Cargar desde URL params (para links compartidos)
+(function() {
+  const p = new URLSearchParams(location.search);
+  const s=p.get('s'), t=p.get('t'), a=p.get('a');
+  if (!s&&!t&&!a) return;
+  function autoClick(gid, val) {
+    const b = [...document.querySelectorAll(`#${gid} .opt`)].find(b=>b.dataset.v===val);
+    if(b) pick(b.dataset.v.toLowerCase().replace('ó','o'), b);
+  }
+  // Pre-select Trigo + Enfermedades for shared links
+  S.cultivo='Trigo'; S.problema='Enfermedades';
+  document.querySelectorAll('#g-cultivo .opt').forEach(b=>b.classList.toggle('on',b.dataset.v==='Trigo'));
+  document.querySelectorAll('#g-problema .opt').forEach(b=>b.classList.toggle('on',b.dataset.v==='Enfermedades'));
+  if(s){ S.susc=s; document.querySelectorAll('#g-susc .opt').forEach(b=>b.classList.toggle('on',b.dataset.v===s)); }
+  if(t){ S.tam=t;  document.querySelectorAll('#g-tam .opt').forEach(b=>b.classList.toggle('on',b.dataset.v===t)); }
+  if(a){ S.acc=a;  document.querySelectorAll('#g-acc .opt').forEach(b=>b.classList.toggle('on',b.dataset.v===a)); }
+  actualizar();
+  if(s&&t&&a) setTimeout(consultar, 200);
+})();
+</script>
+</body>
+</html>
